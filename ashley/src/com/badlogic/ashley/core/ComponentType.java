@@ -72,7 +72,7 @@ public final class ComponentType {
 	 * @return Bits representing the collection of components for quick comparison and matching. See
 	 *         {@link Family#getFor(Bits, Bits, Bits)}.
 	 */
-	public static Bits getBitsFor (Class<? extends Component>... componentTypes) {
+	public static Bits getBitsFor (@SuppressWarnings("unchecked") Class<? extends Component>... componentTypes) {
 		Bits bits = new Bits();
 
 		int typesLength = componentTypes.length;

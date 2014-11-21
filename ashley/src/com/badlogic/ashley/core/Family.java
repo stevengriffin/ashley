@@ -112,6 +112,7 @@ public class Family {
 	 * @param componentTypes entities will have to contain all of the specified components.
 	 * @return A Builder singleton instance to get a family
 	 */
+	@SafeVarargs
 	public static Builder all (Class<? extends Component>... componentTypes) {
 		return builder.reset().all(componentTypes);
 	}
@@ -120,6 +121,7 @@ public class Family {
 	 * @param componentTypes entities will have to contain at least one of the specified components.
 	 * @return A Builder singleton instance to get a family
 	 */
+	@SafeVarargs
 	public static Builder one (Class<? extends Component>... componentTypes) {
 		return builder.reset().one(componentTypes);
 	}
@@ -128,6 +130,7 @@ public class Family {
 	 * @param componentTypes entities cannot contain any of the specified components.
 	 * @return A Builder singleton instance to get a family
 	 */
+	@SafeVarargs
 	public static Builder exclude (Class<? extends Component>... componentTypes) {
 		return builder.reset().exclude(componentTypes);
 	}
@@ -152,7 +155,8 @@ public class Family {
 		 * @param componentTypes entities will have to contain all of the specified components.
 		 * @return A Builder singleton instance to get a family
 		 */
-		public Builder all (Class<? extends Component>... componentTypes) {
+		@SafeVarargs
+		public final Builder all (Class<? extends Component>... componentTypes) {
 			all = ComponentType.getBitsFor(componentTypes);
 			return this;
 		}
@@ -161,7 +165,8 @@ public class Family {
 		 * @param componentTypes entities will have to contain at least one of the specified components.
 		 * @return A Builder singleton instance to get a family
 		 */
-		public Builder one (Class<? extends Component>... componentTypes) {
+		@SafeVarargs
+		public final Builder one (Class<? extends Component>... componentTypes) {
 			one = ComponentType.getBitsFor(componentTypes);
 			return this;
 		}
@@ -170,7 +175,8 @@ public class Family {
 		 * @param componentTypes entities cannot contain any of the specified components.
 		 * @return A Builder singleton instance to get a family
 		 */
-		public Builder exclude (Class<? extends Component>... componentTypes) {
+		@SafeVarargs
+		public final Builder exclude (Class<? extends Component>... componentTypes) {
 			exclude = ComponentType.getBitsFor(componentTypes);
 			return this;
 		}

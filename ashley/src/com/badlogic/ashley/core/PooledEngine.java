@@ -16,6 +16,8 @@
 
 package com.badlogic.ashley.core;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
@@ -62,7 +64,9 @@ public class PooledEngine extends Engine {
 
 	/** @return Clean {@link Entity} from the Engine pool. In order to add it to the {@link Engine}, use {@link #addEntity(Entity)}. */
 	public Entity createEntity () {
-		return entityPool.obtain();
+		final Entity entity = entityPool.obtain();
+		if (entity == null) { throw new NullPointerException(); }
+		return entity;
 	}
 
 	/**
@@ -93,6 +97,7 @@ public class PooledEngine extends Engine {
 
 	private class PooledEntity extends Entity implements Poolable {
 		@Override
+		@Nullable
 		Component removeInternal (Class<? extends Component> componentType) {
 			Component component = super.removeInternal(componentType);
 
@@ -145,14 +150,12 @@ public class PooledEngine extends Engine {
 				pools.put(type, pool);
 			}
 
-			return (T)pool.obtain();
+			T result = (T) pool.obtain();
+			if (result == null) { throw new NullPointerException(); }
+			return result;
 		}
 
 		public void free (Object object) {
-			if (object == null) {
-				throw new IllegalArgumentException("object cannot be null.");
-			}
-
 			ReflectionPool pool = pools.get(object.getClass());
 
 			if (pool == null) {
@@ -162,9 +165,8 @@ public class PooledEngine extends Engine {
 			pool.free(object);
 		}
 
+		@SuppressWarnings("unused")
 		public void freeAll (Array objects) {
-			if (objects == null) throw new IllegalArgumentException("objects cannot be null.");
-
 			for (int i = 0, n = objects.size; i < n; i++) {
 				Object object = objects.get(i);
 				if (object == null) continue;

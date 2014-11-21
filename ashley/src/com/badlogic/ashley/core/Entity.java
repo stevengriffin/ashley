@@ -16,6 +16,8 @@
 
 package com.badlogic.ashley.core;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import com.badlogic.ashley.core.Engine.ComponentOperationHandler;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.ashley.utils.Bag;
@@ -37,7 +39,7 @@ public class Entity {
 
 	long uuid;
 	boolean scheduledForRemoval;
-	ComponentOperationHandler componentOperationHandler;
+	@Nullable ComponentOperationHandler componentOperationHandler;
 
 	private Bag<Component> components;
 	private Array<Component> componentsArray;
@@ -81,7 +83,7 @@ public class Entity {
 	 * instance reference.
 	 * @return The removed {@link Component}, or null if the Entity did no contain such a component.
 	 */
-	public Component remove (Class<? extends Component> componentClass) {
+	public @Nullable Component remove (Class<? extends Component> componentClass) {
 		ComponentType componentType = ComponentType.getFor(componentClass);
 		int componentTypeIndex = componentType.getIndex();
 		Component removeComponent = components.get(componentTypeIndex);
@@ -96,6 +98,7 @@ public class Entity {
 	}
 
 	/** Removes all the {@link Component}'s from the Entity. */
+	@SuppressWarnings("null")
 	public void removeAll () {
 		while (componentsArray.size > 0) {
 			removeInternal(componentsArray.get(0).getClass());
@@ -115,7 +118,7 @@ public class Entity {
 	 * @return the instance of the specified {@link Component} attached to this {@link Entity}, or null if no such
 	 *         {@link Component} exists.
 	 */
-	public <T extends Component> T getComponent (Class<T> componentClass) {
+	public @Nullable <T extends Component> T getComponent (Class<T> componentClass) {
 		return getComponent(ComponentType.getFor(componentClass));
 	}
 
@@ -124,6 +127,7 @@ public class Entity {
 	 * @return The {@link Component} object for the specified class, null if the Entity does not have any components for that class.
 	 */
 	@SuppressWarnings("unchecked")
+	@Nullable
 	<T extends Component> T getComponent (ComponentType componentType) {
 		int componentTypeIndex = componentType.getIndex();
 
@@ -165,6 +169,7 @@ public class Entity {
 			}
 		}
 
+		@SuppressWarnings("null")
 		int componentTypeIndex = ComponentType.getIndexFor(component.getClass());
 
 		components.set(componentTypeIndex, component);
@@ -176,6 +181,7 @@ public class Entity {
 		return this;
 	}
 
+	@Nullable
 	Component removeInternal (Class<? extends Component> componentClass) {
 		ComponentType componentType = ComponentType.getFor(componentClass);
 		int componentTypeIndex = componentType.getIndex();
@@ -198,7 +204,7 @@ public class Entity {
 	}
 
 	@Override
-	public boolean equals (Object obj) {
+	public boolean equals (@Nullable Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Entity)) return false;
 		Entity other = (Entity)obj;

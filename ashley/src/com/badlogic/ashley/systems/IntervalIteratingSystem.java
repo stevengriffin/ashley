@@ -47,6 +47,7 @@ public abstract class IntervalIteratingSystem extends IntervalSystem {
 	public IntervalIteratingSystem (Family family, float interval, int priority) {
 		super(interval, priority);
 		this.family = family;
+		this.entities = new ImmutableArray<Entity>();
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public abstract class IntervalIteratingSystem extends IntervalSystem {
 	@Override
 	protected void updateInterval () {
 		for (int i = 0; i < entities.size(); ++i) {
-			processEntity(entities.get(i));
+			processEntity(entities.getSafe(i));
 		}
 	}
 

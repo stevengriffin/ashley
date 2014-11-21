@@ -18,6 +18,8 @@ package com.badlogic.ashley.utils;
 
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Array.ArrayIterable;
 
@@ -34,8 +36,20 @@ public class ImmutableArray<T> implements Iterable<T> {
 		this.array = array;
 	}
 
+	public ImmutableArray() {
+		this.array = new Array<T>();
+	}
+
 	public int size () {
 		return array.size;
+	}
+	
+	public @NonNull T getSafe (int index) {
+		T result = array.get(index);
+		if (result == null) {
+			throw new NullPointerException("Object at this index was null in array.");
+		}
+		return result;
 	}
 
 	public T get (int index) {
@@ -74,10 +88,12 @@ public class ImmutableArray<T> implements Iterable<T> {
 		return array.toArray(type);
 	}
 
+	@Override
 	public boolean equals (Object object) {
 		return array.equals(object);
 	}
 
+	@Override
 	public String toString () {
 		return array.toString();
 	}

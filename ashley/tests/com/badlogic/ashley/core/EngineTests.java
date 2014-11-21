@@ -16,13 +16,17 @@
 
 package com.badlogic.ashley.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Test;
 
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Bits;
 
 @SuppressWarnings("unchecked")
 public class EngineTests {
@@ -61,7 +65,7 @@ public class EngineTests {
 		public int addedCalls = 0;
 		public int removedCalls = 0;
 
-		private Array<Integer> updates;
+		private Array<Integer> updates = new Array<Integer>();
 
 		public EntitySystemMock () {
 			super();
@@ -76,10 +80,7 @@ public class EngineTests {
 		@Override
 		public void update (float deltaTime) {
 			++updateCalls;
-
-			if (updates != null) {
-				updates.add(priority);
-			}
+			updates.add(priority);
 		}
 
 		@Override
@@ -124,8 +125,8 @@ public class EngineTests {
 	}
 
 	private static class CounterSystem extends EntitySystem {
-		private ImmutableArray<Entity> entities;
-		private Engine engine;
+		private ImmutableArray<Entity> entities = new ImmutableArray<Entity>();
+		@Nullable private Engine engine;
 
 		@Override
 		public void addedToEngine (Engine engine) {
@@ -138,8 +139,8 @@ public class EngineTests {
 			for (int i = 0; i < entities.size(); ++i) {
 				if (i % 2 == 0) {
 					entities.get(i).getComponent(CounterComponent.class).counter++;
-				} else {
-					engine.removeEntity(entities.get(i));
+				} else if (engine != null) {
+					engine.removeEntity(entities.getSafe(i));
 				}
 			}
 		}
@@ -483,13 +484,17 @@ public class EngineTests {
 		ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(CounterComponent.class).get());
 
 		for (int i = 0; i < entities.size(); ++i) {
-			assertEquals(0, entities.get(i).getComponent(CounterComponent.class).counter);
+			CounterComponent component = entities.getSafe(i).getComponent(CounterComponent.class);
+			if (component == null) { throw new NullPointerException(); }
+			assertEquals(0, component.counter);
 		}
 
 		engine.update(deltaTime);
 
 		for (int i = 0; i < entities.size(); ++i) {
-			assertEquals(1, entities.get(i).getComponent(CounterComponent.class).counter);
+			CounterComponent component = entities.getSafe(i).getComponent(CounterComponent.class);
+			if (component == null) { throw new NullPointerException(); }
+			assertEquals(1, component.counter);
 		}
 	}
 

@@ -16,6 +16,8 @@
 
 package com.badlogic.ashley.signals;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.badlogic.gdx.utils.SnapshotArray;
 
 /**
@@ -55,7 +57,8 @@ public class Signal<T> {
 	 * Dispatches an event to all Listeners registered to this Signal
 	 * @param object The object to send off
 	 */
-	public void dispatch (T object) {
+	@SuppressWarnings("unchecked")
+	public void dispatch (@NonNull T object) {
 		Object[] items = listeners.begin();
 		for (int i = 0, n = listeners.size; i < n; i++) {
 			Listener<T> listener = (Listener<T>)items[i];

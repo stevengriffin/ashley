@@ -65,8 +65,8 @@ public class RenderSystem extends EntitySystem {
 		for (int i = 0; i < entities.size(); ++i) {
 			Entity e = entities.get(i);
 
-			position = pm.get(e);
-			visual = vm.get(e);
+			position = pm.getSafe(e);
+			visual = vm.getSafe(e);
 
 			batch.draw(visual.region, position.x, position.y);
 		}

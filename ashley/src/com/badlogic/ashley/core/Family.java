@@ -16,6 +16,8 @@
 
 package com.badlogic.ashley.core;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap;
 
@@ -197,14 +199,14 @@ public class Family {
 	}
 
 	@Override
-	public boolean equals (Object obj) {
+	public boolean equals (@Nullable Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Family)) return false;
 		Family other = (Family)obj;
 		return index == other.index && all.equals(other.all) && one.equals(other.one) && exclude.equals(other.exclude);
 	}
 
-	private static String getFamilyHash (Bits all, Bits one, Bits exclude) {
+	private static @Nullable String getFamilyHash (Bits all, Bits one, Bits exclude) {
 		StringBuilder builder = new StringBuilder();
 		if (!all.isEmpty()) {
 			builder.append("{all:").append(getBitsString(all)).append("}");
@@ -218,7 +220,7 @@ public class Family {
 		return builder.toString();
 	}
 
-	private static String getBitsString (Bits bits) {
+	private static @Nullable String getBitsString (Bits bits) {
 		StringBuilder builder = new StringBuilder();
 
 		int numBits = bits.length();

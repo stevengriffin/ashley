@@ -113,7 +113,9 @@ public abstract class SortedIteratingSystem extends EntitySystem implements Enti
 	public void update (float deltaTime) {
 		sort();
 		for (int i = 0; i < sortedEntities.size; ++i) {
-			processEntity(sortedEntities.get(i), deltaTime);
+			Entity e = sortedEntities.get(i);
+			if (e == null) { throw new NullPointerException("Entity in system's array was null."); }
+			processEntity(e, deltaTime);
 		}
 	}
 

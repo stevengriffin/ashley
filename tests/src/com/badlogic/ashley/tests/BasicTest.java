@@ -100,9 +100,9 @@ public class BasicTest {
 
 			for (int i = 0; i < entities.size(); ++i) {
 				Entity e = entities.get(i);
-
-				PositionComponent p = pm.get(e);
-				MovementComponent m = mm.get(e);
+				if (e == null) { throw new NullPointerException(); }
+				PositionComponent p = pm.getSafe(e);
+				MovementComponent m = mm.getSafe(e);
 
 				p.x += m.velocityX * deltaTime;
 				p.y += m.velocityY * deltaTime;

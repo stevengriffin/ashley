@@ -18,6 +18,8 @@ package com.badlogic.ashley.core;
 
 import java.util.Comparator;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import com.badlogic.ashley.signals.Listener;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -129,7 +131,10 @@ public class Engine {
 			entityOperations.add(operation);
 		} else {
 			while (entities.size > 0) {
-				removeEntity(entities.first());
+				final Entity entity = entities.first();
+				if (entity != null) {
+					removeEntity(entity);
+				}
 			}
 		}
 	}
@@ -157,7 +162,7 @@ public class Engine {
 
 	/** Quick {@link EntitySystem} retrieval. */
 	@SuppressWarnings("unchecked")
-	public <T extends EntitySystem> T getSystem (Class<T> systemType) {
+	public @Nullable <T extends EntitySystem> T getSystem (Class<T> systemType) {
 		return (T)systemsByClass.get(systemType);
 	}
 
@@ -335,6 +340,7 @@ public class Engine {
 			immutableFamilies.put(family, immutableEntities);
 
 			for (Entity e : this.entities) {
+				if (e == null) { continue; }
 				if (family.matches(e)) {
 					entities.add(e);
 					e.getFamilyBits().set(family.getIndex());
@@ -348,17 +354,27 @@ public class Engine {
 	private void processPendingEntityOperations () {
 		while (entityOperations.size > 0) {
 			EntityOperation operation = entityOperations.removeIndex(entityOperations.size - 1);
-
-			switch (operation.type) {
+			final com.badlogic.ashley.core.Engine.EntityOperation.Type type = operation.type;
+			if (type == null) {
+				continue;
+			}
+			final Entity entity = operation.entity;
+			if (entity == null) {
+				continue;
+			}
+			switch (type) {
 			case Add:
-				addEntityInternal(operation.entity);
+				addEntityInternal(entity);
 				break;
 			case Remove:
-				removeEntityInternal(operation.entity);
+				removeEntityInternal(entity);
 				break;
 			case RemoveAll:
 				while (entities.size > 0) {
-					removeEntityInternal(entities.first());
+					Entity e = entities.first();
+					if (e != null) {
+						removeEntityInternal(e);
+					}
 				}
 				break;
 			}
@@ -374,13 +390,18 @@ public class Engine {
 
 		for (int i = 0; i < numOperations; ++i) {
 			ComponentOperation operation = componentOperations.get(i);
-
 			switch (operation.type) {
 			case Add:
-				operation.entity.addInternal(operation.component);
+				final Component component = operation.component;
+				if (component != null) {
+					operation.entity.addInternal(component);
+				}
 				break;
 			case Remove:
-				operation.entity.removeInternal(operation.componentClass);
+				final Class<? extends Component> componentClass = operation.componentClass;
+				if (componentClass != null) {
+					operation.entity.removeInternal(componentClass);
+				}
 				break;
 			}
 
@@ -436,11 +457,12 @@ public class Engine {
 			Add, Remove,
 		}
 
-		public Type type;
-		public Entity entity;
-		public Component component;
-		public Class<? extends Component> componentClass;
-
+		private static final Entity NULL_ENTITY = new Entity();
+		public Type type = Type.Add;
+		public Entity entity = NULL_ENTITY;
+		@Nullable public Component component;
+		@Nullable public Class<? extends Component> componentClass;
+		
 		public void makeAdd (Entity entity, Component component) {
 			this.type = Type.Add;
 			this.entity = entity;
@@ -465,7 +487,8 @@ public class Engine {
 
 	private static class SystemComparator implements Comparator<EntitySystem> {
 		@Override
-		public int compare (EntitySystem a, EntitySystem b) {
+		public int compare (@Nullable EntitySystem a, @Nullable EntitySystem b) {
+			if (a == null || b == null) { throw new NullPointerException(); }
 			return a.priority > b.priority ? 1 : (a.priority == b.priority) ? 0 : -1;
 		}
 	}
@@ -475,8 +498,8 @@ public class Engine {
 			Add, Remove, RemoveAll
 		}
 
-		public Type type;
-		public Entity entity;
+		@Nullable public Type type;
+		@Nullable public Entity entity;
 	}
 
 	private static class EntityOperationPool extends Pool<EntityOperation> {

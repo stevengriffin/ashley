@@ -33,8 +33,8 @@ public class MovementSystem extends IteratingSystem {
 
 	@Override
 	public void processEntity (Entity entity, float deltaTime) {
-		PositionComponent position = pm.get(entity);
-		MovementComponent movement = mm.get(entity);
+		PositionComponent position = pm.getSafe(entity);
+		MovementComponent movement = mm.getSafe(entity);
 
 		position.x += movement.velocityX * deltaTime;
 		position.y += movement.velocityY * deltaTime;

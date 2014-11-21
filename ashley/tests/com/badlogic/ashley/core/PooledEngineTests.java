@@ -1,8 +1,14 @@
 
 package com.badlogic.ashley.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Test;
 
 import com.badlogic.ashley.signals.Listener;
@@ -37,7 +43,7 @@ public class PooledEngineTests {
 
 	public static class CombinedSystem extends EntitySystem {
 		private Engine engine;
-		private ImmutableArray<Entity> allEntities;
+		private ImmutableArray<Entity> allEntities = new ImmutableArray<Entity>();
 		private int counter = 0;
 
 		public CombinedSystem (Engine engine) {
@@ -52,7 +58,7 @@ public class PooledEngineTests {
 		@Override
 		public void update (float deltaTime) {
 			if (counter >= 6 && counter <= 8) {
-				engine.removeEntity(allEntities.get(2));
+				engine.removeEntity(allEntities.getSafe(2));
 			}
 			counter++;
 		}
@@ -68,8 +74,8 @@ public class PooledEngineTests {
 	}
 
 	private static class RemoveEntityTwiceSystem extends EntitySystem {
-		private ImmutableArray<Entity> entities;
-		private PooledEngine engine;
+		private ImmutableArray<Entity> entities = new ImmutableArray<Entity>();
+		@Nullable private PooledEngine engine;
 
 		@Override
 		public void addedToEngine (Engine engine) {
@@ -80,17 +86,20 @@ public class PooledEngineTests {
 		@Override
 		public void update (float deltaTime) {
 			Entity entity;
+			final PooledEngine safeEngine = engine;
+			if (safeEngine == null) { throw new NullPointerException(); }
 			for (int i = 0; i < 10; i++) {
-				entity = engine.createEntity();
+				entity = safeEngine.createEntity();
 				assertEquals(0, entity.flags);
 				entity.flags = 1;
-				entity.add(engine.createComponent(PositionComponent.class));
-				engine.addEntity(entity);
+				entity.add(safeEngine.createComponent(PositionComponent.class));
+				safeEngine.addEntity(entity);
 			}
 			for (int i = 0; i < entities.size(); ++i) {
 				entity = entities.get(i);
-				engine.removeEntity(entity);
-				engine.removeEntity(entity);
+				if (entity == null) { throw new NullPointerException(); }
+				safeEngine.removeEntity(entity);
+				safeEngine.removeEntity(entity);
 			}
 		}
 	}

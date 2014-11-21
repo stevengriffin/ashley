@@ -30,6 +30,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 public abstract class IteratingSystem extends EntitySystem {
 	private Family family;
 	private ImmutableArray<Entity> entities;
+	private static final ImmutableArray<Entity> NULL_ENTITIES = new ImmutableArray<Entity>();
 
 	/**
 	 * Instantiates a system that will iterate over the entities described by the Family.
@@ -48,6 +49,7 @@ public abstract class IteratingSystem extends EntitySystem {
 		super(priority);
 
 		this.family = family;
+		this.entities = NULL_ENTITIES;
 	}
 
 	@Override
@@ -57,13 +59,13 @@ public abstract class IteratingSystem extends EntitySystem {
 
 	@Override
 	public void removedFromEngine (Engine engine) {
-		entities = null;
+		entities = NULL_ENTITIES;
 	}
 
 	@Override
 	public void update (float deltaTime) {
 		for (int i = 0; i < entities.size(); ++i) {
-			processEntity(entities.get(i), deltaTime);
+			processEntity(entities.getSafe(i), deltaTime);
 		}
 	}
 

@@ -68,7 +68,9 @@ public class IntervalIteratingTest {
 			engine.update(deltaTime);
 
 			for (int j = 0; j < entities.size(); ++j) {
-				assertEquals(i / 2, im.get(entities.get(j)).numUpdates);
+				final Entity entity = entities.get(j);
+				if (entity == null) { throw new NullPointerException(); }
+				assertEquals(i / 2, im.getSafe(entity).numUpdates);
 			}
 		}
 	}

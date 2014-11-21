@@ -16,6 +16,9 @@
 
 package com.badlogic.ashley.systems;
 
+import static org.junit.Assert.assertEquals;
+
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Test;
 
 import com.badlogic.ashley.core.Component;
@@ -23,10 +26,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
-
-import static org.junit.Assert.*;
 
 public class IteratingSystemTest {
 	private static final float deltaTime = 0.16f;
@@ -75,7 +75,7 @@ public class IteratingSystemTest {
 
 		@Override
 		public void processEntity (Entity entity, float deltaTime) {
-			int index = im.get(entity).index;
+			int index = im.getSafe(entity).index;
 			if (index % 2 == 0) {
 				entity.remove(SpyComponent.class);
 				entity.remove(IndexComponent.class);
@@ -88,7 +88,7 @@ public class IteratingSystemTest {
 
 	private static class IteratingRemovalSystem extends IteratingSystem {
 
-		private Engine engine;
+		@Nullable private Engine engine;
 		private ComponentMapper<SpyComponent> sm;
 		private ComponentMapper<IndexComponent> im;
 
@@ -107,9 +107,11 @@ public class IteratingSystemTest {
 
 		@Override
 		public void processEntity (Entity entity, float deltaTime) {
-			int index = im.get(entity).index;
+			int index = im.getSafe(entity).index;
 			if (index % 2 == 0) {
-				engine.removeEntity(entity);
+				final Engine safeEngine = engine;
+				if (safeEngine == null) { throw new NullPointerException(); }
+				safeEngine.removeEntity(entity);
 			} else {
 				sm.get(entity).updates++;
 			}
@@ -185,9 +187,9 @@ public class IteratingSystemTest {
 		assertEquals(numEntities / 2, entities.size());
 
 		for (int i = 0; i < entities.size(); ++i) {
-			Entity e = entities.get(i);
-
-			assertEquals(1, sm.get(e).updates);
+			final Entity e = entities.get(i);
+			if (e == null) { throw new NullPointerException(); }
+			assertEquals(1, sm.getSafe(e).updates);
 		}
 	}
 
@@ -218,9 +220,9 @@ public class IteratingSystemTest {
 		assertEquals(numEntities / 2, entities.size());
 
 		for (int i = 0; i < entities.size(); ++i) {
-			Entity e = entities.get(i);
-
-			assertEquals(1, sm.get(e).updates);
+			final Entity e = entities.get(i);
+			if (e == null) { throw new NullPointerException(); }
+			assertEquals(1, sm.getSafe(e).updates);
 		}
 	}
 }

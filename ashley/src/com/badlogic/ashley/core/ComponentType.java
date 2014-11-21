@@ -16,6 +16,8 @@
 
 package com.badlogic.ashley.core;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap;
 
@@ -75,7 +77,9 @@ public final class ComponentType {
 
 		int typesLength = componentTypes.length;
 		for (int i = 0; i < typesLength; i++) {
-			bits.set(ComponentType.getIndexFor(componentTypes[i]));
+			Class<? extends Component> type = componentTypes[i];
+			if (type == null) { throw new NullPointerException(); }
+			bits.set(ComponentType.getIndexFor(type));
 		}
 
 		return bits;
@@ -87,7 +91,7 @@ public final class ComponentType {
 	}
 
 	@Override
-	public boolean equals (Object obj) {
+	public boolean equals (@Nullable Object obj) {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;

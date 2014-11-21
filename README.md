@@ -1,5 +1,7 @@
 ![](http://i.imgur.com/w8oAC73.png?1)
 
+This project adds Eclipse null safety annotations and other small additions to the official Ashley project at https://github.com/libgdx/ashley.
+
 A tiny entity framework written in Java. It's inspired by frameworks like
 [Ash](http://www.ashframework.org/) (hence the name) and
 [Artemis](http://gamadu.com/artemis/). Ashley tries to be a high-performance

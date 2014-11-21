@@ -16,6 +16,8 @@
 
 package com.badlogic.ashley.core;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Provides super fast {@link Component} retrieval from {@Link Entity} objects.
  * @param <T> the class type of the {@link Component}.
@@ -33,10 +35,18 @@ public final class ComponentMapper<T extends Component> {
 	}
 
 	/** @return The {@link Component} of the specified class belonging to entity. */
-	public T get (Entity entity) {
+	public @Nullable T get (Entity entity) {
 		return entity.getComponent(componentType);
 	}
 
+	/** Use for when you're sure you have this component, such as in a system that has it in its family. 
+	 * @return The {@link Component} of the specified class belonging to entity. */
+	public T getSafe (Entity entity) {
+		final T component = entity.getComponent(componentType);
+		if (component == null) { throw new NullPointerException("Entity did not have this component."); }
+		return component;
+	}
+	
 	/** @return Whether or not entity has the component of the specified class. */
 	public boolean has (Entity entity) {
 		return entity.hasComponent(componentType);

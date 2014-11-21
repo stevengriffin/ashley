@@ -16,18 +16,23 @@
 
 package com.badlogic.ashley.systems;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Comparator;
+import java.util.LinkedList;
+
+import org.eclipse.jdt.annotation.Nullable;
+import org.junit.Test;
+
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
-import java.util.Comparator;
-import java.util.LinkedList;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
 
 public class SortedIteratingSystemTest {
 	private static final ComponentMapper<OrderComponent> orderMapper = ComponentMapper.getFor(OrderComponent.class);
@@ -94,7 +99,7 @@ public class SortedIteratingSystemTest {
 
 		@Override
 		public void processEntity (Entity entity, float deltaTime) {
-			int index = im.get(entity).index;
+			int index = im.getSafe(entity).index;
 			if (index % 2 == 0) {
 				entity.remove(SpyComponent.class);
 				entity.remove(IndexComponent.class);
@@ -107,7 +112,7 @@ public class SortedIteratingSystemTest {
 
 	private static class IteratingRemovalSystem extends SortedIteratingSystem {
 
-		private Engine engine;
+		@Nullable private Engine engine;
 		private ComponentMapper<SpyComponent> sm;
 		private ComponentMapper<IndexComponent> im;
 
@@ -126,9 +131,11 @@ public class SortedIteratingSystemTest {
 
 		@Override
 		public void processEntity (Entity entity, float deltaTime) {
-			int index = im.get(entity).index;
+			int index = im.getSafe(entity).index;
 			if (index % 2 == 0) {
-				engine.removeEntity(entity);
+				final Engine safeEngine = engine;
+				if (safeEngine == null) { throw new NullPointerException(); }
+				safeEngine.removeEntity(entity);
 			} else {
 				sm.get(entity).updates++;
 			}
@@ -197,8 +204,8 @@ public class SortedIteratingSystemTest {
 
 		for (int i = 0; i < entities.size(); ++i) {
 			Entity e = entities.get(i);
-
-			assertEquals(1, sm.get(e).updates);
+			if (e == null) { throw new NullPointerException(); }
+			assertEquals(1, sm.getSafe(e).updates);
 		}
 	}
 
@@ -231,8 +238,8 @@ public class SortedIteratingSystemTest {
 
 		for (int i = 0; i < entities.size(); ++i) {
 			Entity e = entities.get(i);
-
-			assertEquals(1, sm.get(e).updates);
+			if (e == null) { throw new NullPointerException(); }
+			assertEquals(1, sm.getSafe(e).updates);
 		}
 	}
 
@@ -285,9 +292,10 @@ public class SortedIteratingSystemTest {
 	private static class OrderComparator implements Comparator<Entity> {
 
 		@Override
-		public int compare (Entity a, Entity b) {
-			OrderComponent ac = orderMapper.get(a);
-			OrderComponent bc = orderMapper.get(b);
+		public int compare (@Nullable Entity a, @Nullable Entity b) {
+			if (a == null || b == null) { throw new NullPointerException(); }
+			OrderComponent ac = orderMapper.getSafe(a);
+			OrderComponent bc = orderMapper.getSafe(b);
 			return ac.zLayer > bc.zLayer ? 1 : (ac.zLayer == bc.zLayer) ? 0 : -1;
 		}
 	}
